@@ -1,78 +1,25 @@
 class Node:
-    def __init__(self, value='', code=-1):
+    def __init__(self, value="", code=-1):
         self.value = value
         self.code = code
         self.children = []
         self.isLeaf = True
+
+    def __repr__(self) -> str:
+        if self.value == "":
+            return f'\"ε->{self.code}\"'
+        return f'\"{self.value}->{self.code}\"'
+    
+    def __str__(self) -> str:
+        if self.value == "":
+            return f'\"ε->{self.code}\"'
+        return f'\"{self.value}->{self.code}\"'
 
     def set_code(self, code):
         self.code = code
 
     def set_isLeaf(self, bool_value):
         self.isLeaf = bool_value
-
-    def print_trie(self):
-        if self.isLeaf:
-            if self.value == '':
-                print("e")
-                return
-            print(self.value)
-            return
-
-        for child in self.children:
-            child.print_trie()
-        print(self.value)
-        return
-
-    def insert(self, text):
-        # Caso base: se o texto for vazio, o nó atual é uma chave válida
-        if text == '':
-            self.isLeaf = True
-            return
-
-        # Se não houver filhos, insere diretamente como novo nó
-        if not self.children:
-            new_node = Node(text)
-            self.children.append(new_node)
-            self.set_isLeaf(False)
-            return
-
-        # Ordena os filhos pelo valor para garantir uma ordem de inserção consistente
-        self.children.sort(key=lambda node: node.value)
-
-        for child in self.children:
-            # Calcula o comprimento do prefixo comum entre o filho e o texto a ser inserido
-            common_prefix_length = self.common_prefix_length(child.value, text)
-
-            if common_prefix_length > 0:
-                # Se há um prefixo comum entre o nó filho e o texto a ser inserido
-                if common_prefix_length < len(child.value):
-                    # Divide o nó filho existente
-                    remaining_suffix = child.value[common_prefix_length:]
-                    split_node = Node(remaining_suffix, code=child.code)
-                    split_node.children = child.children
-                    split_node.isLeaf = child.isLeaf
-
-                    child.value = child.value[:common_prefix_length]
-                    child.children = [split_node]
-                    child.set_isLeaf(False)
-
-                # Insere o restante do texto como novo nó filho
-                remaining_text = text[common_prefix_length:]
-                if remaining_text:
-                    new_text_node = Node(remaining_text)
-                    child.children.append(new_text_node)
-                    child.set_isLeaf(False)
-                else:
-                    # Se não restar mais texto, insere um nó vazio como indicador de chave válida
-                    empty_node = Node('')
-                    child.children.append(empty_node)
-                    child.set_isLeaf(True)
-                return
-
-        # Caso nenhum prefixo comum seja encontrado, adiciona o texto como um novo nó filho
-        new_node = Node(text)
-        self.children.append(new_node)
 
     def common_prefix_length(self, s1, s2):
         # Calcula o comprimento do prefixo comum entre duas strings
@@ -82,10 +29,112 @@ class Node:
                 return i
         return length
 
+    def print_trie(self, spacing = 0):
+        for i in range(spacing):
+            print("|  ", end="")
+
+        if self.isLeaf:
+            if self.value == '':
+                print("ε", self.code)
+                return
+            print(self.value, self.code)
+            return
+
+        if self.value == '': print("Root")
+        else: print(self.value)
+
+        for child in self.children:
+            child.print_trie(spacing+1)
+        return
+
+    def insert(self, text, code):
+        i = self.common_prefix_length(text, self.value)
+        # print(f'I = {i}, text = {text}, nó = {self.value}')
+
+        if i == len(self.value) and i == len(text):
+            # Texto e nó são iguais, adicionar epsilon
+            epsilon = Node('', code = code)
+
+            self.children.append(epsilon)
+            self.set_isLeaf(False)
+
+            return
+
+        if i == len(self.value) and i < len(text): 
+            # Nó possui um prefixo do texto inserido
+            # Já que a inserção parte de uma busca, garanto que não existe filho do qual poderia ser realizada a inserção
+            if self.isLeaf: #Se o nó era folha acrescento um nó Epsilon
+                epsilon = Node(value= '', code= self.code)
+                self.set_isLeaf(False)
+                self.children.append(epsilon)
+            
+            new_text = text[i:]
+            new_node = Node(value=new_text, code = code)
+            self.children.append(new_node)
+
+            # print('Caso 1')
+            return
+
+        if i < len(self.value) and i == len(text):  #O texto é um prefixo do nó
+            suffix = self.value[i:]
+            suffix_node = Node(value=suffix, code= self.code)
+            suffix_node.children = self.children.copy()
+
+            self.children.clear()
+            self.children.append(suffix_node)
+            self.value = self.value[:i]
+            self.set_isLeaf(False)
+
+            epsilon = Node(value='', code=code)
+            self.children.append(epsilon)
+
+            # print('Caso 2')
+            return
+
+        if i < len(self.value) and i < len(text): #Nó e texto possuem um prefixo em comum
+            suffix = self.value[i:]
+            # print("Suffix = ", suffix)
+            suffix_node = Node(value=suffix, code= self.code)
+            suffix_node.children = self.children.copy()
+            # print("Filhos do suffix:", suffix_node.children)
+
+            if len(suffix_node.children) > 0:
+                suffix_node.set_isLeaf(False)
+
+            self.children.clear()
+            self.children.append(suffix_node)
+            self.value = self.value[:i]
+            self.set_isLeaf(False)
+
+            new_node = Node(value= text[i:], code= code)
+            self.children.append(new_node)
+
+            # print(self.children)
+
+            # print('Caso 3')
+            return
+
+        print("Inserção não bateu com nenhum dos casos")
+        return
+    
+    def insert_search(self, text, code):
+        #Função auxiliar da inserção, faz uma busca de casamento parcial
+        i = self.common_prefix_length(text, self.value)
+        text_suffix = text[i:]
+
+        if i == len(self.value):
+            for child in self.children:
+                if child.value != '' and text_suffix != '':
+                    if child.value[0] == text_suffix[0]:
+                        child.insert_search(text_suffix, code)
+                        return
+        
+        self.insert(text, code)
+        return
+
     def search(self, text):
         # Função de busca para verificar se a chave "text" está presente na Trie
-        if text == '':
-            return self.isLeaf
+        if text == '' and self.isLeaf: return self.code
 
         for child in self.children:
             if text.startswith(child.value):
@@ -98,26 +147,89 @@ class Trie:
     def __init__(self):
         self.root = Node()
 
-    def insert_node(self, value):
-        self.root.insert(value)
-
-    def search_node(self, key):
-        return self.root.search(key)
-
+    def find(self, text):
+        return self.root.search(text)
+    
+    def print(self):
+        return self.root.print_trie()
+    
+    def insert(self, text, code):
+        self.root.insert_search(text, code)
 
 # Teste do Trie
-trie = Trie()
-trie.insert_node('C')
-trie.insert_node('CAB')
-trie.insert_node('CB')
-trie.insert_node('CD')
-trie.insert_node('DA')
+# trie = Trie()
+# trie.insert_node('C')
+# trie.insert_node('CAB')
+# trie.insert_node('CB')
+# trie.insert_node('CD')
+# trie.insert_node('DA')
 
-trie.root.print_trie()
+# trie.insert_node('CBD')
+# trie.insert_node('CAA')
 
-print(trie.search_node('C'))    # True
-print(trie.search_node('DA'))   # True
-print(trie.search_node('CAB'))  # True
-print(trie.search_node('CB'))   # True
-print(trie.search_node('CD'))   # True
-print(trie.search_node('CE'))   # False
+# trie.insert_node('DAA')
+# trie.insert_node('DAD')
+# trie.insert_node('DD')
+
+# trie.print()
+
+# print(trie.search_node('C'))    # True
+# print(trie.search_node('DA'))   # True
+# print(trie.search_node('CAB'))  # True
+# print(trie.search_node('CB'))   # True
+# print(trie.search_node('CD'))   # True
+# print(trie.search_node('CE'))   # False
+
+if __name__ == '__main__':
+    trie = Trie()
+    trie.root.set_isLeaf(False)
+    trie.insert('CABA', 1)
+    trie.insert('CADD', 2)
+    trie.insert('CAB', 3)
+    trie.insert('CB', 4)
+    trie.insert('CD', 5)
+    trie.insert('DA', 6)
+
+    trie.print()
+    print("-------------------------")
+
+    outra = Trie()
+    outra.root.set_isLeaf(False)
+
+    outra.insert("MELÃO", 1)
+    outra.insert("MELANCIA", 2)
+    outra.insert('MAMÃO', 3)
+    outra.insert('MORANGO', 4)
+    outra.insert('MEL', 5)
+    outra.insert('MAÇÃ', 6)
+    outra.insert('BANANA', 7)
+    outra.insert('MARACUJÁ', 8)
+    outra.insert('MARMELO', 9)
+    outra.insert('MACADÂMIA', 10)
+    outra.insert('MEXERICA', 11)
+    outra.insert('MIRTILO', 12)
+    outra.insert('MANGA', 13)
+
+    outra.insert('LIMÃO', 14)
+    outra.insert('LARANJA', 15)
+    outra.insert('LICHIA', 16)
+
+    outra.insert('ABACAXI', 17)
+    outra.insert('ACEROLA', 18)
+    outra.insert('AMEIXA', 19)
+    outra.insert('ameixa', 20)
+    outra.insert('AMORA', 21)
+    outra.insert('AÇAÍ', 22)
+    outra.insert('AVELÃ', 23)
+
+    outra.insert('MELADO', 24)
+
+    outra.print()
+
+    print(outra.find('MORANGO'))
+    print(outra.find('MEL'))
+    print(outra.find('ABACAXI'))
+    print(outra.find('MAMÃO'))
+    print(outra.find('MELADO'))
+    print(outra.find('COCO'))
+    print(outra.find(''))
