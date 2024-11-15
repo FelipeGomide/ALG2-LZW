@@ -79,6 +79,7 @@ class Node:
             suffix = self.value[i:]
             suffix_node = Node(value=suffix, code= self.code)
             suffix_node.children = self.children.copy()
+            suffix_node.set_isLeaf(self.isLeaf)
 
             self.children.clear()
             self.children.append(suffix_node)
@@ -233,3 +234,10 @@ if __name__ == '__main__':
     print(outra.find('MELADO'))
     print(outra.find('COCO'))
     print(outra.find(''))
+
+    mydict = Trie()
+    mydict.insert('010', 3)
+    mydict.insert('0101', 1)
+    mydict.insert('0111', 2)
+    mydict.insert('0', 4)
+    mydict.print()
