@@ -83,7 +83,8 @@ class Node:
 
             if self.isLeaf:
             #Se o nó era folha acrescento nó Epsilon
-                epsilon = Node('', code = code)
+                #epsilon = Node('', code = code)
+                epsilon = Node('', code=self.code) # mudei aqui!!
                 self.set_isLeaf(False)
                 self.epsilon_child = epsilon
 
@@ -170,6 +171,30 @@ class Node:
 
         self.insert(text, code)
         return
+        
+    def search(self, text):
+      # Verifica se há uma correspondência exata com o nó atual
+      if text == self.key:
+          return True, self.code
+
+      # Se o nó atual é um prefixo, continua a busca nos seus filhos
+      if text.startswith(self.key):
+          text_suffix = text[len(self.key):]  # Texto restante para a busca
+
+          # Verifica se há um filho epsilon (indica o final de uma sequência)
+          if text_suffix == '' and self.epsilon_child:
+              return True, self.epsilon_child.code
+
+          # Busca no filho à esquerda
+          if self.left_child and text_suffix.startswith(self.left_child.key):
+              return self.left_child.search(text_suffix)
+
+          # Busca no filho à direita
+          if self.right_child and text_suffix.startswith(self.right_child.key):
+              return self.right_child.search(text_suffix)
+
+      # Nenhuma correspondência encontrada
+      return False, -1
 
 
 class Trie:
