@@ -75,7 +75,7 @@ class Node:
             self.epsilon_child = epsilon
             self.set_isLeaf(False)
 
-            print('Caso 1')
+            #print('Caso 1')
             return
         
         if i == len(self.key) and i < len(text):
@@ -83,8 +83,7 @@ class Node:
 
             if self.isLeaf:
             #Se o nó era folha acrescento nó Epsilon
-                #epsilon = Node('', code = code)
-                epsilon = Node('', code=self.code) # mudei aqui!!
+                epsilon = Node('', code = self.code)
                 self.set_isLeaf(False)
                 self.epsilon_child = epsilon
 
@@ -97,7 +96,7 @@ class Node:
             else:
                 self.right_child = new_node
             
-            print('Caso 2')
+            #print('Caso 2')
             return
 
         if i < len(self.key) and i == len(text):
@@ -119,7 +118,7 @@ class Node:
             epsilon = Node('', code = code)
             self.epsilon_child = epsilon
 
-            print('Caso 3')
+            #print('Caso 3')
             return
             
         if i < len(self.key) and i < len(text):
@@ -142,7 +141,7 @@ class Node:
                 self.right_child = suffix_node
                 self.left_child = new_node
 
-            print('Caso 4')
+            #print('Caso 4')
             return
 
         print('Falta esse caso ainda')
@@ -195,6 +194,28 @@ class Node:
 
       # Nenhuma correspondência encontrada
       return False, -1
+
+    def search(self, text):
+    #Busca pelo casamento exato de uma chave
+        if text == '' and self.isLeaf: return True, self.code
+
+        if text == '' and self.epsilon_child:
+            return self.epsilon_child.search(text)
+
+        if text[0] == '0':
+            if self.left_child and text.startswith(self.left_child.key):
+                i = len(self.left_child.key)
+                return self.left_child.search(text[i:])
+            
+            return False, -1
+        
+        if self.right_child and text.startswith(self.right_child.key):
+            i = len(self.right_child.key)
+            return self.right_child.search(text[i:])
+        
+        return False, -1
+
+
 
 
 class Trie:
