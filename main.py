@@ -130,7 +130,7 @@ def generate_log():
         print("Decomp Time:\t{:.3f}s".format(decompress_time))
 
     log_file = open(f"logs/{os.path.splitext(file)[0]}_{dynamic_mode}_{min_dict_size}_{max_dict_size}.txt", mode="w")
-    log_file.write(f"{dynamic_mode} {min_dict_size} {max_dict_size} {input_size} {output_size} {output_size/input_size * 100} {compression_time} {decompress_time}")
+    log_file.write(f"{dynamic_mode} {min_dict_size} {max_dict_size} {input_size} {output_size} {output_size/input_size * 100} {compression_time} {decompress_time} \n")
     log_file.close()
 
 
