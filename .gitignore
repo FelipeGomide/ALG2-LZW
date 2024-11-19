@@ -2,3 +2,4 @@ __pycache__
 compressed
 decompressed
 mprofile*
+logs

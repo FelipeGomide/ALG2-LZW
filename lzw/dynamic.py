@@ -8,7 +8,6 @@ from math import log, floor
 def countTotalBits(num):
     return len(bin(num)[2:])
 
-@profile
 def lzw_dynamic_compress(input_file, max_dict_size, min_dict_size):
     dictionary = Trie()
 
@@ -87,7 +86,6 @@ def lzw_dynamic_compress(input_file, max_dict_size, min_dict_size):
 
     return compressed_file
 
-@profile
 def lzw_dynamic_decompress(compressed_file, max_dict_size, min_dict_size):
     dictionary = Trie()
     idx = 0
@@ -116,9 +114,12 @@ def lzw_dynamic_decompress(compressed_file, max_dict_size, min_dict_size):
     result += string
     i= 0 
 
-    while c.pos + n_bits < len(c):
-        n_bits = countTotalBits(idx+1)
-        code = c.read(n_bits)
+    while c.pos < len(c):
+        try:
+            n_bits = countTotalBits(idx+1)
+            code = c.read(n_bits)
+        except:
+            return
         code = Bits(f'uint{max_dict_size}={code.uint}').b
 
         i += 1
