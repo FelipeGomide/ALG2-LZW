@@ -7,9 +7,8 @@ import os
 def countTotalBits(num):
      return len(bin(num)[2:])
 
-
+#@profile
 def lzw_static_compress(input_file, max_dict_size):
-    print(sys.argv, len(sys.argv))
 
     dictionary = Trie()
 
@@ -19,91 +18,52 @@ def lzw_static_compress(input_file, max_dict_size):
     c = BitStream(filename=f'input/{input_file}')
     file = open(f"compressed/{compressed_file}", mode="wb")
 
-    # """print("Arquivo codificado em string binária: ", c.bin)
-    # print("Tamanho: ", len(c))
-    # print("Bytes: ", len(c) // 8)
-    # print("BitStream size: ", sys.getsizeof(c))
-    # print("Binary String size: ", sys.getsizeof(c.bin))"""
-
     i = 0
     idx = 0
-    #n_bits = 9
 
-    #result = []  # Stores the resulting encoded string
     to_file = BitStream()
-    
-    #max_bits_code = 9
-    
 
     # Preenche tabela unicode
     for j in range(256):
         dictionary.insert(Bits(uint8=j).b, idx)
         idx += 1
-    
-    #print(c.b)
+
     w = c.read(8)
     i += 8
 
     while i < len(c):
         # Read the next byte (8 bits) as a binary string
         symbol = c.read(8)
-        #print(f"{i//8} iteração. Lido: {symbol.b}, Number: {symbol.uint}, {chr(symbol.uint)}")
-
-        #print("Decode_byte", decode_byte, chr(decode_byte.uint))
-        #print("--> " + decode_byte)
-
-        # if countTotalBits(idx) > max_dict_size:
-        #     # Limit exceeded: Only add the current code to the result
-        #     print("Limite de bits excedido!", i//8)
-        #     new_dict = Trie()
-        #     dictionary = new_dict
-        #     idx = 0
-
-        #     for j in range(256):
-        #         dictionary.insert(Bits(uint8=j).b, idx)
-        #         idx += 1
-
-            #w = symbol
-            # found, code = dictionary.find(w.b)
-            # if found:
-            #     to_append = Bits(f'uint{max_dict_size}={code}')
-            #     #result.append(to_append.b)
-            #     to_file.append(to_append)
-            
-            # w = symbol
 
         wc = Bits(bin = w.b + symbol.b)
 
         found, code_bits = dictionary.find(wc.b)
-            #print("Buscado:", wc.b, found , code_bits)
 
         if found:
             w = wc
 
         else:
-                # Insert the new sequence in the Trie
+            # Insiro na Trie
             if countTotalBits(idx) <= max_dict_size:    
                 dictionary.insert(wc.b, idx)
                 idx += 1
-                # to_append = Bits(f'uint{n_bits}={w.uint}')
 
             _, code = dictionary.find(w.b)
-                
+            
+            # Insiro no arquivo
             to_append = Bits(f'uint{max_dict_size}={code}')
             to_file.append(to_append)
-                #result.append(to_append.b)  # Append the previous match
 
-            w = symbol  # Start a new sequence
+            w = symbol  # Inicio nova sequência
 
         # Increment the position by step size
         i += 8
 
-    # Add any remaining sequence to the result
+    # Adiciono que sobrar ao arquivo
     if w:
         found, code = dictionary.find(w.b)
         if found:
             to_append = Bits(f'uint{max_dict_size}={code}')
-            #result.append(to_append.b)
             to_file.append(to_append)
 
     to_file.tofile(file)
@@ -111,7 +71,7 @@ def lzw_static_compress(input_file, max_dict_size):
 
     return compressed_file
 
-
+#@profile
 def lzw_static_decompress(compressed_file, max_dict_size):
     dictionary = Trie()
     idx = 0

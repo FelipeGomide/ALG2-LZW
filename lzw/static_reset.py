@@ -1,14 +1,12 @@
 from bitstring import *
 from .trie.binary_compact_trie import Trie
 
-import sys
 import os
 
 def countTotalBits(num):
-     return len(bin(num)[2:])
+    return len(bin(num)[2:])
 
 def lzw_static_compress_reset(input_file, max_dict_size):
-    print(sys.argv, len(sys.argv))
 
     dictionary = Trie()
 

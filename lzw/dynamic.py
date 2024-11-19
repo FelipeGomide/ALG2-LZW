@@ -8,9 +8,8 @@ from math import log, floor
 def countTotalBits(num):
     return len(bin(num)[2:])
 
+@profile
 def lzw_dynamic_compress(input_file, max_dict_size, min_dict_size):
-    print(sys.argv, len(sys.argv))
-
     dictionary = Trie()
 
     compressed_file = os.path.splitext(input_file)[0] + ".ceflzw"
@@ -88,6 +87,7 @@ def lzw_dynamic_compress(input_file, max_dict_size, min_dict_size):
 
     return compressed_file
 
+@profile
 def lzw_dynamic_decompress(compressed_file, max_dict_size, min_dict_size):
     dictionary = Trie()
     idx = 0
