@@ -42,7 +42,11 @@ Se o nó atual for uma folha, verifica se seu valor corresponde à string a ser 
 
 Após cada remoção, a função ajusta a trie para eliminar redundâncias. Se um nó tem apenas um filho restante, combina os valores para manter a compactação. A estrutura resultante permanece eficiente, com o menor número possível de nós, garantindo a integridade da trie após a remoção da string.
 
-## 2.2. Compressão no método LZW
+# 3. IMPLEMENTAÇÃO DO MÉTODO LZW
+
+Nesse método, são executadas duas ações principais, que serão analisadas a seguir: a compressão e a descompressão de um arquivo.
+
+## 3.1. Compressão no método LZW
 
 O primeiro passo, após, obviamente, criar o dicionário que armazenará as cadeias lidas, é inserir todos os 256 unicodes e o respectivo código ASCII que será armazenado na folha Trie (que indica o fim da cadeia). 
 
@@ -50,18 +54,38 @@ Na nossa implementação, definimos que o texto que será comprimido será lido 
 
 Após ler cada byte, primeiro verifica se a última cadeia inserida na Trie, concatenada a essa nova cadeia lida, já foi inserida no dicionário (usa a operação "search" descrita anteriormente para verificar isso) e, se já tiver sido, adiciona o código associado a essa cadeia à string que armazena os códigos comprimidos. Caso contrário, insere a concatenação da última cadeia lida com a nova lida no dicionário e define que o código dessa cadeia é igual ao tamanho do dicionário (em seguida, soma 1 unidade à variável que armazena o tamanho dessa estrutura). Por fim, nesse último caso, deve-se atualizar qual foi a última cadeia lida. Após concluir a leitura do documento em binário, será retornada a string composta pela representação em código.
 
-## 2.3. Descompressão no método LZW
+## 3.2. Descompressão no método LZW
 
 Assim como na compressão, o primeiro passo é criar um dicionário que armazena os unicodes e os seus respectivos códigos ASCII. O dicionário construído na descompressão mapeia o código à string correspondente e, a cada código lido, concatena a string lida às lidas anteriormente. 
 
 Após criar o dicionário, deve-se ler qual o primeiro conjunto de bits do arquivo que contém a compressão. Como essa primeira leitura corresponde a um único caracter (sempre será assim), lê qual o código no arquivo comprimido e busca-o na Trie e insere a cadeia associada a ele. Se não estiver na Trie, COMPLETAR
 
-# 3. ABORDAGENS DA REPRESENTAÇÃO DAS CADEIAS NO MÉTODO LZW
+## 3.3. Detalhes relevantes sobre a implementação das ações mencionadas acima
 
-Foram implementadas duas formas como representar o código que é usado para realizar a compressão: o número de bits usado para representar o código por ser fixo ou pode ser dinâmico. No fixo, os códigos são sempre escritos usando uma quantidade pré-definidas de bits, que é depende do tamanho máximo do dicionário. Caso tente inserir uma nova cadeia na árvore, mas todos os códigos no intervalo [0; tamanho dicionário] já foram atribuídos a outras cadeias, a inserção não poderá ser feita e a compressão só poderá ser realizada usando as chaves já inseridas no dicionário.
+Conforme mencionado, é definido um número máximo de bits que podem ser usados para representar os códigos de cada cadeia, existindo a possibilidade de que tal limite seja atingido antes de acabar o processamento das cadeias. Diante dessa situação, há dois caminhos que podem ser tomados: pode-se manter o dicionário e para cada cadeia restante para ser processada e comprimida, a compressão delas deve ser feita de acordo com as cadeias já inseridas no dicionário. Outra opção é reiniciar o dicionário, mantendo apenas os unicodes e, a partir daí, adiciona as cadeias restantes (mas deve-se manter o que já foi comprimido antes). Essas duas implementações podem ser feitas tanto na abordagem de chaves de tamanhos em bits estático, quanto das de tamanho dinâmico.
 
-Já na abordagem dinâmica, o tamanhos em bits para ser usado na representação dos códigos começa com um tamanho pré-definido de 8 bits (é o número de bits necessário para representar os códigos dos unicodes), mas, de acordo com a necessidade, pode-se usar mais bits para representar os códigos. Essa abordagem é mais vantajosa no que tange ao uso da memória, pois, como o aumento é feito de acordo com a necessidade, não há uso desnecessário de bits, logo, a compressão feita se torna mais eficiente. Mas assim como na abordagem anterior, na dinâmica também há um número máximo de bits que pode ser usado para representar os códigos e, caso atinja esse máximo, não podem ser feitas novas inserções e, dessa forma, as compressões das novas cadeias lidas devem ser feitas usando as chaves já inseridas na Trie.
+# 4. ABORDAGENS DA REPRESENTAÇÃO DAS CADEIAS NO MÉTODO LZW
+
+Foram implementadas duas formas como representar o código que é usado para realizar a compressão: o número de bits usado para representar o código por ser fixo ou pode ser dinâmico. 
+
+## 4.1. Códigos cujos binários são de tamanho fixo
+
+Os códigos são sempre escritos usando uma quantidade pré-definidas de bits, que é depende do tamanho máximo do dicionário. Caso tente inserir uma nova cadeia na árvore, mas todos os códigos no intervalo [0; tamanho dicionário] já foram atribuídos a outras cadeias, a inserção não poderá ser feita e a compressão só poderá ser realizada usando as chaves já inseridas no dicionário. Contudo, conforme mencionado na seção 3, há outra implementação possível, que é reiniciando o dicionário, conforme já foi explicado
+
+## 4.2. Códigos cujos binários são de tamanho variável
+
+Já na abordagem dinâmica, os tamanhos em bits para ser usado na representação dos códigos começa com um tamanho pré-definido de 8 bits (é o número de bits necessário para representar os códigos dos unicodes), mas, de acordo com a necessidade, pode-se usar mais bits para representar os códigos, à medida que insere novas cadeias na trie. Essa abordagem é mais vantajosa no que tange ao uso da memória, pois, como o aumento é feito de acordo com a necessidade, não há uso desnecessário de bits, logo, a compressão feita se torna mais eficiente. Mas, assim como na abordagem anterior, na dinâmica também há um número máximo de bits que pode ser usado para representar os códigos e, caso atinja esse máximo, não podem ser feitas novas inserções e, dessa forma, as compressões das novas cadeias lidas devem ser feitas usando as chaves já inseridas na Trie (ou seguindo o outro paradigma de reiniciar a Trie, como foi explicado na seção 3).
 
 Essa ideia do número de bits usado ser fixa ou variável é aplicável tanto na construção do dicionário durante a compressão, quanto durante as descompressão, mas sempre respeitando o número de bits que pode ser usado para representar os códigos.
 
-# 4. ORGANIZAÇÃO
+# 5. ORGANIZAÇÃO DOS ARQUIVOS E DIRETÓRIOS
+
+A pasta `lzw` é onde está presente os arquivos que contém a implementação da Trie Compacta (mais especificamente, está em `./lzw/trie/binary_compact_trie.py`. 
+
+Ainda no diretório `lzw` estão os arquivos `static.py` e `static_reset.py` que implementam a compressão e a descompressão com o código de tamanho estático. A diferença entre as duas está no fato que no `static_reset.py`, quando todas as chaves que podem ser representadas com o número de bits definidos já estão sendo usadas, reinicia-se o dicionário, adiciona apenas os unicodes (e seus respectivos códigos) e, a partir daí, insere as chaves restantes. Já no `static.py`, quando ao usar todos os códigos possíveis, mantém-se o dicionário obtido e apenas comprimi as novas sub-cadeias de acordo com as chaves que já foram inseridas nas árvores.
+
+Já o arquivo `dynamic.py` implementa o método LZW usando a definição dinâmica dos códigos. Não foi implementada a versão dinâmica onde reinicia o dicionário, após usar todas as chaves disponíveis, devido à dificuldade de fazê-la funcioná-la adequadamente.
+
+Nos diretórios `compressed` e `decompressed` são armazenados, respectivamente, os arquivos com os resultados das compressões e das descompressões.
+
+Por fim, no diretório `input` estão todos os arquivos usados para realizar o teste do trabalho desenvolvido.
