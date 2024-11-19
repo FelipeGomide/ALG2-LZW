@@ -1,14 +1,13 @@
-#from lzw.trie.binary_compact_trie import Trie
-from lzw.static import lzw_static_compress, lzw_static_decompress
-
-#from bitstring import *
+from lzw.static import *
+from lzw.dynamic import *
+from lzw.static_reset import *
 
 import sys
 
 compress = 0
 decompress = 0
 dynamic_mode = False
-min_dict_size = 8
+min_dict_size = 9
 max_dict_size = 12
 file = "input/input.txt"
 
@@ -18,18 +17,31 @@ def main():
     print("Configurações", "\nDynamic", dynamic_mode, "\nMin", min_dict_size)
     print("Max", max_dict_size, "\nFilename", file)
     print('Compress', compress, '\nDecompress', decompress)
+    
+    
+    if dynamic_mode:
+        if compress and decompress:
+            out = lzw_dynamic_compress(file, max_dict_size, min_dict_size)
+            print("Descompressão")
+            lzw_dynamic_decompress(out, max_dict_size, min_dict_size)
+        else:
+            if compress:
+                lzw_dynamic_compress(file, max_dict_size, min_dict_size)
 
-    if compress and decompress:
-        out = lzw_static_compress(file, max_dict_size)
-        lzw_static_decompress(out, max_dict_size)
+            if decompress:
+                lzw_dynamic_decompress(file, max_dict_size, min_dict_size)
     else:
-        if compress:
-            lzw_static_compress(file, max_dict_size)
+        if compress and decompress:
+            out = lzw_static_compress_reset(file, max_dict_size)
+            print("Descompressão")
+            lzw_static_decompress_reset(out, max_dict_size)
+        else:
+            if compress:
+                lzw_static_compress(file, max_dict_size)
 
-        if decompress:
-            lzw_static_decompress(file, max_dict_size)
-        
-
+            if decompress:
+                lzw_static_decompress(file, max_dict_size)
+            
 
 def parse_args():
     args = sys.argv
@@ -52,9 +64,9 @@ def parse_args():
                 dynamic_mode = False
             case '--dynamic':
                 dynamic_mode = True
-            case '--max_size':
+            case '--max':
                 max_dict_size = int(args[i+1])
-            case '--min_size':
+            case '--min':
                 min_dict_size = int(args[i+1])
             case '--compress' | '-c':
                 compress = 1

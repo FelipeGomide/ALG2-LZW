@@ -7,8 +7,7 @@ import os
 def countTotalBits(num):
      return len(bin(num)[2:])
 
-
-def lzw_static_compress(input_file, max_dict_size):
+def lzw_static_compress_reset(input_file, max_dict_size):
     print(sys.argv, len(sys.argv))
 
     dictionary = Trie()
@@ -52,16 +51,16 @@ def lzw_static_compress(input_file, max_dict_size):
         #print("Decode_byte", decode_byte, chr(decode_byte.uint))
         #print("--> " + decode_byte)
 
-        # if countTotalBits(idx) > max_dict_size:
-        #     # Limit exceeded: Only add the current code to the result
-        #     print("Limite de bits excedido!", i//8)
-        #     new_dict = Trie()
-        #     dictionary = new_dict
-        #     idx = 0
+        if countTotalBits(idx) > max_dict_size:
+            # Limit exceeded: Only add the current code to the result
+            print("Limite de bits excedido!", i//8)
+            new_dict = Trie()
+            dictionary = new_dict
+            idx = 0
 
-        #     for j in range(256):
-        #         dictionary.insert(Bits(uint8=j).b, idx)
-        #         idx += 1
+            for j in range(256):
+                dictionary.insert(Bits(uint8=j).b, idx)
+                idx += 1
 
             #w = symbol
             # found, code = dictionary.find(w.b)
@@ -82,9 +81,9 @@ def lzw_static_compress(input_file, max_dict_size):
 
         else:
                 # Insert the new sequence in the Trie
-            if countTotalBits(idx) <= max_dict_size:    
-                dictionary.insert(wc.b, idx)
-                idx += 1
+            #if countTotalBits(idx) <= max_dict_size:    
+            dictionary.insert(wc.b, idx)
+            idx += 1
                 # to_append = Bits(f'uint{n_bits}={w.uint}')
 
             _, code = dictionary.find(w.b)
@@ -112,7 +111,7 @@ def lzw_static_compress(input_file, max_dict_size):
     return compressed_file
 
 
-def lzw_static_decompress(compressed_file, max_dict_size):
+def lzw_static_decompress_reset(compressed_file, max_dict_size):
     dictionary = Trie()
     idx = 0
 
@@ -141,15 +140,15 @@ def lzw_static_decompress(compressed_file, max_dict_size):
             break
         
         i+=1
-        # if countTotalBits(idx) > max_dict_size:
-        #     print("Limite de bits excedido!", i)
-        #     new_dict = Trie()
-        #     dictionary =  new_dict
-        #     idx = 0
+        if countTotalBits(idx) > max_dict_size:
+            print("Limite de bits excedido!", i)
+            new_dict = Trie()
+            dictionary =  new_dict
+            idx = 0
 
-        #     for j in range(256):
-        #         dictionary.insert(Bits(f'uint{max_dict_size}={j}').b, Bits(uint8=j).b)
-        #         idx += 1
+            for j in range(256):
+                dictionary.insert(Bits(f'uint{max_dict_size}={j}').b, Bits(uint8=j).b)
+                idx += 1
 
         found, search = dictionary.find(code)
         #print(f"Found:{found}, Search:{search}")
@@ -171,9 +170,8 @@ def lzw_static_decompress(compressed_file, max_dict_size):
         to_append.tofile(file)
         result += str(entry)
 
-        if countTotalBits(idx) <= max_dict_size:
-            dictionary.insert(Bits(f"uint{max_dict_size}={idx}").b, string+entry[:8])
-            idx += 1
+        dictionary.insert(Bits(f"uint{max_dict_size}={idx}").b, string+entry[:8])
+        idx += 1
         
         string = entry
 
