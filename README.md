@@ -58,7 +58,7 @@ Após ler cada byte, primeiro verifica se a última cadeia inserida na Trie, con
 
 Assim como na compressão, o primeiro passo é criar um dicionário que armazena os unicodes e os seus respectivos códigos ASCII. O dicionário construído na descompressão mapeia o código à string correspondente e, a cada código lido, concatena a string lida às lidas anteriormente. 
 
-Após criar o dicionário, deve-se ler qual o primeiro conjunto de bits do arquivo que contém a compressão. Como essa primeira leitura corresponde a um único caracter (sempre será assim), lê qual o código no arquivo comprimido e busca-o na Trie e insere a cadeia associada a ele. Se não estiver na Trie, COMPLETAR
+Após criar o dicionário, deve-se ler qual o primeiro código da compressão e a decodificá-lo. Como essa primeira leitura corresponde a um único caracter (sempre será assim), lê qual o código no arquivo comprimido e busca-o na Trie e insere a cadeia associada a ele na string de saída que armazena a decodificação. Para os códigos subsequentes, checa-se se o código lido já foi inserido no dicionário e, caso tenha sido, registra na string de saída o texto associado ao código. Caso contrário, concatena-se o último símbolo decodificado com o último byte lido que não pertencia à Trie e insere no dicionário de decodificação (e o código associado a ele corresponde ao tamanho do dicionário). Realiza esse processo até ler todos os códigos que compõe o arquivo comprimido. Ao final, será retornado a string de saída com o texto original.
 
 ## 3.3. Detalhes relevantes sobre a implementação das ações mencionadas acima
 
@@ -70,7 +70,7 @@ Foram implementadas duas formas como representar o código que é usado para rea
 
 ## 4.1. Códigos cujos binários são de tamanho fixo
 
-Os códigos são sempre escritos usando uma quantidade pré-definidas de bits, que é depende do tamanho máximo do dicionário. Caso tente inserir uma nova cadeia na árvore, mas todos os códigos no intervalo [0; tamanho dicionário] já foram atribuídos a outras cadeias, a inserção não poderá ser feita e a compressão só poderá ser realizada usando as chaves já inseridas no dicionário. Contudo, conforme mencionado na seção 3, há outra implementação possível, que é reiniciando o dicionário, conforme já foi explicado
+Os códigos são sempre escritos usando uma quantidade pré-definidas de bits, que é depende do tamanho máximo do dicionário. Caso tente inserir uma nova cadeia na árvore, mas todos os códigos no intervalo [0; tamanho dicionário] já foram atribuídos a outras cadeias, a inserção não poderá ser feita e a compressão só poderá ser realizada usando as chaves já inseridas no dicionário. Contudo, conforme mencionado na seção 3, há outra implementação possível, que é reiniciando o dicionário, conforme já foi explicado na seção 3.
 
 ## 4.2. Códigos cujos binários são de tamanho variável
 
