@@ -211,7 +211,9 @@ Nos gráficos de memória, percebemos alguns instantes distintos de uso de memó
 
 No início da execução, um grande volume de memória (cerca de 25MB) é alocado, acredito que seja destinado à abertura dos arquivos de leitura e escrita, já que se mantém em todos os gráficos.
 
-Depois disso, podem ser vistas duas curva, que correspondem à alocação de memória para o dicionário, com estrutura de Trie, nos estágios de compressão e descompressão. É visível que este aumenta consideravelmente conforme a quantia de bits do dicionário, o que faz sentido, já que o número de elementos do dicionário cresce quadraticamente em relação ao número de bits de sua capacidade.
+Depois disso, podem ser vistas duas curvas, que correspondem à alocação de memória para o dicionário, com estrutura de Trie, nos estágios de compressão e descompressão. É visível que este aumenta consideravelmente conforme a quantia de bits do dicionário, o que faz sentido, já que o número de elementos do dicionário cresce quadraticamente em relação ao número de bits de sua capacidade.
+
+Em todos os casos os gráficos de uso de memória seguiam o mesmo padrão, logo não os exibiremos nas próximas sessões, que tratam de outros tipos de arquivo.
 
 ### Estático com Limpeza do Dicionário
 
