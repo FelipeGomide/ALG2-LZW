@@ -406,4 +406,4 @@ Esse arquivo pode ser encontrado no linux em `/usr/bin` e corresponde ao execut�
 
 Em resumo, os resultados são piores do que o "Hello World!", já que se trata de um arquivo maior, com mais complexidade e variedade de instruções.
 
-Curiosamente, nesse caso o método estático se mostrou melhor compressor que o dinâmico
+Curiosamente, nesse caso o método estático se mostrou melhor compressor que o dinâmico, não soubemos explicar ao certo o que ocorre aqui.
